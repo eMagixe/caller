@@ -1,0 +1,42 @@
+services:
+  caller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    ports:
+      # Reachable locally and by a reverse proxy running on this host.
+      - "localhost:${CALLER_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      # Listen on all interfaces INSIDE the container; the host port is loopback-only.
+      NITRO_HOST: 0.0.0.0
+      NITRO_PORT: "3000"
+      NUXT_APP_ORIGIN: "${NUXT_APP_ORIGIN:-http://localhost:3000}"
+      NUXT_TRUST_PROXY: "${NUXT_TRUST_PROXY:-false}"
+      NUXT_STUN_URLS: "${NUXT_STUN_URLS-stun:stun.cloudflare.com:3478}"
+      NUXT_TURN_URLS: "${NUXT_TURN_URLS:-}"
+      NUXT_TURN_SECRET: "${NUXT_TURN_SECRET:-}"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/', { signal: AbortSignal.timeout(4000) }).then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -1,0 +1,28 @@
+# Local dependencies and generated output must not replace the Linux build.
+node_modules
+.nuxt
+.output
+.data
+
+# Secrets and host deployment configuration do not belong in the image.
+.env
+.env.*
+deploy
+*.pem
+*.key
+
+# Repository metadata, editor files, tests, and local artifacts.
+.git
+.agents
+.codex
+.idea
+.vscode
+tests
+test-results
+playwright-report
+playwright.config.ts
+coverage
+*.log
+README.md
+compose*.yaml
+compose*.yml
