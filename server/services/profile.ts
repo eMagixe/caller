@@ -1,15 +1,9 @@
 import { H3Event } from 'h3'
-import { TokenService } from '#server/services/token'
+import { BaseService } from '#server/services/base.ts'
+import { ConfirmProfilePayload } from '#shared/types'
 
-class ProfileService {
-	private readonly server: string = ''
-	private readonly tokenService: TokenService = TokenService.create()
+class ProfileService extends BaseService {
 	public static instance: ProfileService | null = null
-
-	constructor() {
-		const config = useRuntimeConfig()
-		this.server = config.authServer
-	}
 
 	static create() {
 		if (this.instance) {
@@ -20,23 +14,18 @@ class ProfileService {
 		}
 	}
 
-	async getProfile(event: H3Event): Promise<User> {
+	async getProfile(event: H3Event): Promise<User | null> {
 		const token = this.tokenService.getToken(event)
 
 		if (!token) {
-			throw createError({
-				statusCode: 401,
-				statusMessage: 'Unauthorized'
-			})
+			return null
 		}
 
-		return await $fetch('/profile', {
-			method: 'GET',
-			baseURL: this.server,
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
-		})
+		return (await this.getRequest(event, '/profile')) as User
+	}
+
+	async confirmProfile(event: H3Event, payload: ConfirmProfilePayload): Promise<User> {
+		return (await this.postRequest(event, '/profile/set-password', payload)) as User
 	}
 }
 

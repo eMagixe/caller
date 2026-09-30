@@ -4,7 +4,6 @@ import { useAuth, useProfile } from '#imports'
 
 const auth = useAuth()
 const profile = useProfile()
-
 const user = await profile.getUser()
 
 const open = ref(false)
@@ -29,8 +28,8 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			}
 		},
 		{
-			label: 'Создать пользователя',
-			icon: 'i-lucide-user',
+			label: 'Добавить',
+			icon: 'i-lucide-plus',
 			onSelect: () => {
 				navigateTo('/dashboard/users/create')
 			}

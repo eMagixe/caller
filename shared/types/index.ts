@@ -13,4 +13,10 @@ export type CreateUserPayload = {
 	role: UserRole
 }
 
+export type ConfirmProfilePayload = {
+	email: string
+	password: string
+	code: string
+}
+
 export type UserRole = 'admin' | 'user'

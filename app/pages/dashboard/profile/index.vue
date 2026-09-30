@@ -2,12 +2,12 @@
 import { useProfile } from '#imports'
 
 const profile = useProfile()
-const me = await profile.getUser()
+const user = await profile.getUser()
 </script>
 
 <template>
 	<pre>
-		{{ me }}
+		{{ user }}
 	</pre>
 </template>
 

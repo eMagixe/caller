@@ -1,19 +1,12 @@
 import { User } from '#shared/types'
-import { TokenService } from '#server/services/token'
+import { BaseService } from '#server/services/base.ts'
 
 export type AuthUserData = User & {
 	token: string
 }
 
-class AuthService {
-	private readonly baseUrl: string = ''
-	private readonly tokenService: TokenService = TokenService.create()
+class AuthService extends BaseService {
 	public static instance: AuthService | null = null
-
-	constructor() {
-		const config = useRuntimeConfig()
-		this.baseUrl = config.authServer
-	}
 
 	static create() {
 		if (this.instance) {

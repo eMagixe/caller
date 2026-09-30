@@ -6,6 +6,6 @@ definePageMeta({
 
 <template>
 	<UContainer class="flex items-center justify-center h-screen">
-		<FromLogin />
+		<FormLogin />
 	</UContainer>
 </template>

@@ -51,29 +51,27 @@ function showInvitation() {
 	joinError.value = ''
 	joinOpen.value = true
 }
+
+const user = useUser()
+
+const users = await user.getAll()
 </script>
 
 <template>
-	<div class="landing">
-		<DashboardModalInvitation
-			v-model:open="joinOpen"
-			:link="joinLink"
-			:error="joinError"
-			@update:link="joinLink = $event"
-			@submit="openInvitation"
-		/>
-		<main class="landing-main">
+	<DashboardModalInvitation
+		v-model:open="joinOpen"
+		:link="joinLink"
+		:error="joinError"
+		@update:link="joinLink = $event"
+		@submit="openInvitation"
+	/>
+	<div class="flex flex-row h-screen">
+		<UScrollArea class="w-1/2">
+			<div v-for="item in users" :key="item.id">{{ item.firstName }} {{ item.lastName }}</div>
+		</UScrollArea>
+		<main class="w-1/2">
 			<section class="hero">
 				<div class="hero-copy">
-					<h1>
-						На расстоянии<br />одного <span>«привет».</span
-						><svg class="title-spark" viewBox="0 0 48 48" aria-hidden="true">
-							<path d="M24 4v12M24 32v12M4 24h12M32 24h12M10 10l8 8M30 30l8 8M10 38l8-8M30 18l8-8" />
-						</svg>
-					</h1>
-					<p class="hero-description">
-						Встречайтесь взглядом. Делитесь важным.<br />Приватные звонки для разговоров, которые сближают.
-					</p>
 					<DashboardFormCreate
 						:hydrated="hydrated"
 						:busy="busy"

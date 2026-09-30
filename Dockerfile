@@ -2,7 +2,7 @@ FROM node:24-bookworm-slim AS build
 
 WORKDIR /app
 
-# Cache dependencies independently from application changes.
+# Cache dependencies independently form application changes.
 # Keep dependency install scripts enabled (Nuxt prepare and native build tools).
 COPY package.json package-lock.json ./
 RUN npm ci

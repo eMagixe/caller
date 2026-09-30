@@ -1,23 +1,22 @@
-import { type User } from '#shared/types'
+import { type ConfirmProfilePayload, type User } from '#shared/types'
 
 export const useProfile = () => {
 	const state = useState<User | null>('profile', () => null)
-
-	const isLocalSession = typeof sessionStorage !== 'undefined'
 
 	async function getUser() {
 		if (state.value === null) {
 			state.value = await getSessionUser()
 		}
-		return state.value
+		return state
 	}
 
 	function setUserToSession(user: User) {
+		state.value = user
 		sessionStorage.setItem('user', JSON.stringify(user))
 	}
 
 	async function getSessionUser() {
-		if (isLocalSession) {
+		if (import.meta.client) {
 			const stringSessionUser = sessionStorage.getItem('user')
 			if (stringSessionUser) return JSON.parse(stringSessionUser)
 			else {
@@ -36,5 +35,12 @@ export const useProfile = () => {
 		} else return null
 	}
 
-	return { state, getUser, setUserToSession }
+	async function confirmProfile(payload: ConfirmProfilePayload) {
+		return await $fetch('/api/profile/confirm', {
+			method: 'POST',
+			body: { ...payload }
+		})
+	}
+
+	return { getUser, setUserToSession, confirmProfile }
 }

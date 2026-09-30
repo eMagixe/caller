@@ -79,7 +79,8 @@ export default defineAppConfig({
 		},
 		input: {
 			slots: {
-				base: 'bg-primary/50!'
+				base: 'bg-primary/50!',
+				root: 'w-1/2 not-sm:w-full'
 			},
 			defaultVariants: {
 				variant: 'ghost',
