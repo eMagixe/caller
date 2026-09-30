@@ -19,7 +19,8 @@ export default defineNuxtConfig({
 		trustProxy: false,
 		turnUrls: '',
 		turnSecret: '',
-		stunUrls: 'stun:stun.cloudflare.com:3478'
+		stunUrls: 'stun:stun.cloudflare.com:3478',
+		authServer: 'http://localhost:3030'
 	},
 	app: {
 		head: {

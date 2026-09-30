@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
-import { useAuth } from '~/composables/useAuth.ts'
+import { useAuth, useProfile } from '#imports'
 
 const auth = useAuth()
+const profile = useProfile()
+
+const user = await profile.getUser()
 
 const open = ref(false)
 
@@ -10,35 +13,26 @@ const getItemsAll = (state: 'collapsed' | 'expanded' = 'expanded') => {
 	return [
 		{
 			label: 'Список',
-			icon: 'i-lucide-users',
-			to: '/record'
+			icon: 'i-lucide-user',
+			to: '/dashboard'
 		}
 	] as NavigationMenuItem[]
-}
-
-const menuToRole = () => {
-	return auth?.isAdminUser.value
-		? [
-				{
-					label: 'Список',
-					icon: 'i-lucide-users',
-					to: '/account/users'
-				}
-			]
-		: []
-}
-
-const getItemsConfig = (state: 'collapsed' | 'expanded' = 'expanded') => {
-	return menuToRole() as NavigationMenuItem[]
 }
 
 const userItems = computed<DropdownMenuItem[][]>(() => [
 	[
 		{
 			label: 'Профиль',
-			icon: 'i-lucide-users',
+			icon: 'i-lucide-user',
 			onSelect: () => {
-				navigateTo('/account/details')
+				navigateTo('/dashboard/profile')
+			}
+		},
+		{
+			label: 'Создать пользователя',
+			icon: 'i-lucide-user',
+			onSelect: () => {
+				navigateTo('/dashboard/users/create')
 			}
 		},
 		{
@@ -79,14 +73,6 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 						link: 'p-1.5 overflow-hidden'
 					}"
 				/>
-				<div v-if="auth.isAdminUser" class="flex flex-col gap-5">
-					<UNavigationMenu
-						:key="useId()"
-						:items="getItemsConfig(state)"
-						orientation="vertical"
-						:ui="{ link: 'p-1.5 overflow-hidden' }"
-					/>
-				</div>
 			</template>
 
 			<template #footer>
@@ -96,23 +82,33 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 					:ui="{
 						content: 'w-(--reka-dropdown-menu-trigger-width) bg-primary min-w-48 ring-0',
 						viewport: 'border-none',
+						itemLabel: 'text-white',
 						item: 'hover:bg-primary/50!',
 						itemLeadingIcon: 'text-white'
 					}"
 				>
 					<UButton
 						v-if="open"
-						v-bind="auth.getUser()"
-						:label="auth.getUser()?.name || 'Default'"
+						v-bind="auth.isAuthenticated"
+						:label="user ? user.firstName : 'Default'"
 						trailing-icon="i-lucide-chevrons-up-down"
 						color="neutral"
 						variant="ghost"
-						class="w-full data-[state=open]:bg-brimary hover:bg-primary overflow-hidden text-white bg-primary/50"
+						class="w-full data-[state=open]:bg-brimary hover:bg-primary overflow-hidden bg-primary/50"
 						:ui="{
-							trailingIcon: 'text-white ms-auto'
+							trailingIcon: 'text-white ms-auto',
+							label: 'text-white'
 						}"
 					/>
-					<UButton icon="i-lucide-user" class="m-auto" size="md" v-else />
+					<UButton
+						icon="i-lucide-user"
+						class="m-auto"
+						size="md"
+						:ui="{
+							leadingIcon: 'text-primary'
+						}"
+						v-else
+					/>
 				</UDropdownMenu>
 			</template>
 		</USidebar>
@@ -121,6 +117,9 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			<div class="h-(--ui-header-height) shrink-0 flex items-center px-4">
 				<UButton
 					icon="i-lucide-panel-left"
+					:ui="{
+						leadingIcon: 'text-primary/30'
+					}"
 					class="text-primary/30"
 					variant="ghost"
 					aria-label="Toggle sidebar"

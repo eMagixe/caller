@@ -45,6 +45,22 @@ export default defineAppConfig({
 			upload: 'i-ri-upload-2-line',
 			warning: 'i-ri-alert-line'
 		},
+		toast: {
+			slots: {
+				root: 'bg-primary ring-none',
+				title: 'text-white',
+				description: 'text-white/70'
+			}
+		},
+		navigationMenu: {
+			variants: {
+				active: {
+					true: {
+						link: 'before:bg-primary/30!'
+					}
+				}
+			}
+		},
 		button: {
 			defaultVariants: {
 				variant: 'outline',
@@ -54,6 +70,11 @@ export default defineAppConfig({
 		badge: {
 			defaultVariants: {
 				variant: 'outline'
+			}
+		},
+		formField: {
+			slots: {
+				label: 'text-primary!'
 			}
 		},
 		input: {
