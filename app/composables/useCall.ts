@@ -28,7 +28,7 @@ export function useCall(roomId: string) {
 	const connectedAt = ref(0)
 	const self = computed(() => room.value?.participants.find((person) => person.id === room.value?.selfId))
 	const other = computed(() => room.value?.participants.find((person) => person.id !== room.value?.selfId))
-	let socket: WebSocket | undefined
+	let wsClient: WebSocket | undefined
 	let pc: RTCPeerConnection | undefined
 	let channel: RTCDataChannel | undefined
 	let videoSender: RTCRtpSender | undefined
@@ -44,8 +44,9 @@ export function useCall(roomId: string) {
 	let queue = Promise.resolve()
 
 	function send(message: ClientSignal) {
-		if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message))
+		if (wsClient?.readyState === WebSocket.OPEN) wsClient.send(JSON.stringify(message))
 	}
+
 	function sendMedia() {
 		send({ type: 'media', audio: audioEnabled.value, video: videoEnabled.value })
 	}
@@ -226,29 +227,36 @@ export function useCall(roomId: string) {
 
 	function connectSocket() {
 		if (disposed) return
-		const ws = new WebSocket(
-			`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/rooms/${roomId}/socket`
-		)
-		socket = ws
+
+		const path = `/api/rooms/${roomId}/socket`
+		const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+		const urlConnect = `${protocol}//${location.host}${path}`
+
+		const ws = new WebSocket(urlConnect)
+
+		wsClient = ws
+
 		ws.onopen = () => {
-			if (socket !== ws || disposed) return ws.close()
+			if (wsClient !== ws || disposed) return ws.close()
 			socketOnline.value = true
 			reconnectAttempts = 0
 			clearInterval(heartbeat)
 			heartbeat = setInterval(() => send({ type: 'ping' }), 25_000)
 		}
+
 		ws.onmessage = (event) => {
 			queue = queue
 				.then(async () => {
-					if (socket !== ws || disposed) return
+					if (wsClient !== ws || disposed) return
 					await handle(JSON.parse(event.data) as ServerSignal)
 				})
 				.catch((err) => {
 					if (!disposed) error.value = errorMessage(err, 'Не удалось установить соединение.')
 				})
 		}
+
 		ws.onclose = (event) => {
-			if (socket !== ws) return
+			if (wsClient !== ws) return
 			socketOnline.value = false
 			clearInterval(heartbeat)
 			resetPeer()
@@ -373,9 +381,9 @@ export function useCall(roomId: string) {
 		error.value = ''
 		clearTimeout(reconnectTimer)
 		clearInterval(heartbeat)
-		if (socket) {
-			socket.onclose = null
-			socket.close()
+		if (wsClient) {
+			wsClient.onclose = null
+			wsClient.close()
 		}
 		resetPeer()
 		socketOnline.value = false
@@ -388,9 +396,9 @@ export function useCall(roomId: string) {
 		generation++
 		clearTimeout(reconnectTimer)
 		clearInterval(heartbeat)
-		if (socket) {
-			socket.onclose = null
-			socket.close()
+		if (wsClient) {
+			wsClient.onclose = null
+			wsClient.close()
 		}
 		resetPeer()
 		localStream.value?.getTracks().forEach((track) => track.stop())
