@@ -9,7 +9,7 @@ const localVideo = ref<HTMLVideoElement | null>(null)
 const remoteVideo = ref<HTMLVideoElement | null>(null)
 let localStream: MediaStream = new MediaStream()
 
-const webSocket = useWebSocket(`ws://${location.host}/api/rooms/${room.value}`)
+const webSocket = useWebSocket(`wss://${location.host}/api/rooms/${room.value}`)
 const webRTC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] })
 
 async function join() {
