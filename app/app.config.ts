@@ -61,6 +61,11 @@ export default defineAppConfig({
 				}
 			}
 		},
+		card: {
+			slots: {
+				root: 'ring-0! bg-white! shadow'
+			}
+		},
 		button: {
 			defaultVariants: {
 				variant: 'outline',

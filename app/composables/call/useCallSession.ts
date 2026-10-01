@@ -23,10 +23,13 @@ export function useCallSession(ctx: CallContext, { getMedia, connectSocket, disp
 					method: 'POST',
 					body: { name, invite }
 				})
+
 				sessionStorage.removeItem(`guest-invite:${ctx.roomId}`)
 			}
+
 			joined.value = true
 			connectSocket()
+
 		} catch (err) {
 			localStream.value?.getTracks().forEach((track) => track.stop())
 			localStream.value = undefined
