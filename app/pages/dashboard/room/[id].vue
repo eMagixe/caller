@@ -11,7 +11,7 @@ const webRTC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflar
 const candidates: RTCIceCandidateInit[] = []
 const localDevicesInitPromise = ref<Promise<void>>()
 
-const webSocket = useWebSocket(`ws://${location.host}/api/rooms/create?room=${room}`, {
+const webSocket = useWebSocket(`wss://${location.host}/api/rooms/create?room=${room}`, {
 	onMessage: (webSocket, event) => handle(JSON.parse(event.data))
 })
 
