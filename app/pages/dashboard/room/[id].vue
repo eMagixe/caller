@@ -2,67 +2,72 @@
 import { useWebSocket } from '@vueuse/core'
 
 const route = useRoute()
-const room = ref(route.params.id as string)
+const room = route.params.id as string
 
-const status = ref('')
+const status = ref('Подключаемся…')
 const localVideo = ref<HTMLVideoElement | null>(null)
 const remoteVideo = ref<HTMLVideoElement | null>(null)
-let localStream: MediaStream = new MediaStream()
 
-const webSocket = useWebSocket(`wss://${location.host}/api/rooms/${room.value}`)
-const webRTC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] })
+const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] })
+const pending: RTCIceCandidateInit[] = []
+let ready: Promise<void>
 
-async function join() {
-	localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-	localStream.getTracks().forEach((track) => webRTC.addTrack(track, localStream))
-	localVideo.value!.srcObject = localStream
+const ws = useWebSocket(`wss://${location.host}/api/rooms/${room}`, {
+	onMessage: (_, event) => handle(JSON.parse(event.data))
+})
+const send = (msg: object) => ws.send(JSON.stringify(msg))
 
-	webRTC.onicecandidate = (event) => {
-		if (event.candidate) {
-			const candidateData = JSON.stringify({ type: 'candidate', candidate: event.candidate })
-			webSocket.send(candidateData)
-		}
-	}
-
-	webRTC.ontrack = (event) => {
-		const [firstStream] = event.streams
-		if (firstStream) remoteVideo.value!.srcObject = firstStream
-	}
-
-	const offer = await webRTC.createOffer()
-	const offerData = JSON.stringify({ type: 'offer', sdp: offer })
-
-	webSocket.send(offerData)
-
-	status.value = 'Ждём собеседника…'
+pc.onicecandidate = (e) => {
+	if (e.candidate) send({ type: 'candidate', candidate: e.candidate })
+}
+pc.ontrack = (e) => {
+	if (e.streams[0]) remoteVideo.value!.srcObject = e.streams[0]
 }
 
-join()
+async function flushPending() {
+	for (const c of pending) await pc.addIceCandidate(c)
+	pending.length = 0
+}
 
-const pending: RTCIceCandidateInit[] = []
+async function handle(data: any) {
+	await ready // ждём, пока добавятся локальные треки
 
-watch(webSocket.data, async (newData) => {
-	const data = JSON.parse(newData)
+	if (data.type === 'join') {
+		// мы уже в комнате — инициируем соединение
+		const offer = await pc.createOffer()
+		await pc.setLocalDescription(offer)
+		send({ type: 'offer', sdp: pc.localDescription })
+	}
 
 	if (data.type === 'offer') {
-		await webRTC.setRemoteDescription(data.sdp)
+		await pc.setRemoteDescription(data.sdp)
+		await flushPending()
+		const answer = await pc.createAnswer()
+		await pc.setLocalDescription(answer)
+		send({ type: 'answer', sdp: pc.localDescription })
+	}
 
-		// Теперь можно добавить накопленные кандидаты
-		for (const c of pending) await webRTC.addIceCandidate(c)
-		pending.length = 0
-
-		const answer = await webRTC.createAnswer()
-		await webRTC.setLocalDescription(answer)
-		webSocket.send(JSON.stringify({ type: 'answer', sdp: answer }))
+	if (data.type === 'answer') {
+		await pc.setRemoteDescription(data.sdp)
+		await flushPending()
 	}
 
 	if (data.type === 'candidate') {
-		if (webRTC.remoteDescription) {
-			await webRTC.addIceCandidate(data.candidate)
-		} else {
-			pending.push(data.candidate)
-		}
+		if (pc.remoteDescription) await pc.addIceCandidate(data.candidate)
+		else pending.push(data.candidate)
 	}
+}
+
+onMounted(() => {
+	ready = (async () => {
+		const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+		localVideo.value!.srcObject = stream
+		stream.getTracks().forEach((t) => pc.addTrack(t, stream))
+	})()
+	ready.then(() => {
+		send({ type: 'join' })
+		status.value = 'Ждём собеседника…'
+	})
 })
 </script>
 
