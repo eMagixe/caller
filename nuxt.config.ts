@@ -21,7 +21,7 @@ export default defineNuxtConfig({
 		turnUrls: '',
 		turnSecret: '',
 		stunUrls: 'stun:stun.cloudflare.com:3478',
-		authServer: 'http://localhost:3030'
+		authServer: 'https://caller-backend-qox8ww-9592ad-46-191-166-245.sslip.io'
 	},
 	app: {
 		head: {
