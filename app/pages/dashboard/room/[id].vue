@@ -4,99 +4,82 @@ import { useWebSocket } from '@vueuse/core'
 const route = useRoute()
 const room = route.params.id as string
 
-const status = ref('Подключаемся…')
 const localVideo = ref<HTMLVideoElement | null>(null)
 const remoteVideo = ref<HTMLVideoElement | null>(null)
 
-const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] })
-const pending: RTCIceCandidateInit[] = []
-let ready: Promise<void>
+const webRTC = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] })
+const candidates: RTCIceCandidateInit[] = []
+const localDevicesInitPromise = ref<Promise<void>>()
 
-const ws = useWebSocket(`wss://${location.host}/api/rooms/${room}`, {
-	onMessage: (_, event) => handle(JSON.parse(event.data))
+const webSocket = useWebSocket(`ws://${location.host}/api/rooms/create?room=${room}`, {
+	onMessage: (webSocket, event) => handle(JSON.parse(event.data))
 })
-const send = (msg: object) => ws.send(JSON.stringify(msg))
 
-pc.onicecandidate = (e) => {
-	if (e.candidate) send({ type: 'candidate', candidate: e.candidate })
-}
-pc.ontrack = (e) => {
-	if (e.streams[0]) remoteVideo.value!.srcObject = e.streams[0]
+const send = (msg: object) => webSocket.send(JSON.stringify(msg))
+
+webRTC.onicecandidate = (event) => {
+	if (event.candidate) send({ type: 'candidate', candidate: event.candidate })
 }
 
-async function flushPending() {
-	for (const c of pending) await pc.addIceCandidate(c)
-	pending.length = 0
+webRTC.ontrack = (event) => {
+	if (event.streams[0]) remoteVideo.value!.srcObject = event.streams[0]
+}
+
+async function addCandidate() {
+	for (const candidate of candidates) await webRTC.addIceCandidate(candidate)
+	candidates.length = 0
 }
 
 async function handle(data: any) {
-	await ready // ждём, пока добавятся локальные треки
+	await localDevicesInitPromise.value
 
 	if (data.type === 'join') {
 		// мы уже в комнате — инициируем соединение
-		const offer = await pc.createOffer()
-		await pc.setLocalDescription(offer)
-		send({ type: 'offer', sdp: pc.localDescription })
+		const offer = await webRTC.createOffer()
+		await webRTC.setLocalDescription(offer)
+		send({ type: 'offer', sdp: webRTC.localDescription })
 	}
 
 	if (data.type === 'offer') {
-		await pc.setRemoteDescription(data.sdp)
-		await flushPending()
-		const answer = await pc.createAnswer()
-		await pc.setLocalDescription(answer)
-		send({ type: 'answer', sdp: pc.localDescription })
+		await webRTC.setRemoteDescription(data.sdp)
+		await addCandidate()
+		const answer = await webRTC.createAnswer()
+		await webRTC.setLocalDescription(answer)
+		send({ type: 'answer', sdp: webRTC.localDescription })
 	}
 
 	if (data.type === 'answer') {
-		await pc.setRemoteDescription(data.sdp)
-		await flushPending()
+		await webRTC.setRemoteDescription(data.sdp)
+		await addCandidate()
 	}
 
 	if (data.type === 'candidate') {
-		if (pc.remoteDescription) await pc.addIceCandidate(data.candidate)
-		else pending.push(data.candidate)
+		if (webRTC.remoteDescription) await webRTC.addIceCandidate(data.candidate)
+		else candidates.push(data.candidate)
 	}
 }
 
-onMounted(() => {
-	ready = (async () => {
-		const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-		localVideo.value!.srcObject = stream
-		stream.getTracks().forEach((t) => pc.addTrack(t, stream))
-	})()
-	ready.then(() => {
+async function initLocalDevices() {
+	const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+	localVideo.value!.srcObject = stream
+	stream.getTracks().forEach((t) => webRTC.addTrack(t, stream))
+}
+
+onMounted(async () => {
+	localDevicesInitPromise.value = initLocalDevices().then(() => {
 		send({ type: 'join' })
-		status.value = 'Ждём собеседника…'
 	})
 })
 </script>
 
 <template>
-	<div class="page">
-		<span>{{ status }}</span>
-
-		<div class="row">
-			<video ref="localVideo" autoplay playsinline muted />
-			<video ref="remoteVideo" autoplay playsinline />
-		</div>
+	<div class="w-full h-full relative">
+		<video
+			ref="remoteVideo"
+			autoplay
+			playsinline
+			class="absolute shadow-2xl border border-b-gray-800 right-5 bottom-5 w-100 h-50 not-sm:right-2.5 not-sm:bottom-2.5 not-sm:w-25 not-sm:h-50 z-50 bg-gray-900 rounded-2xl"
+		/>
+		<video ref="localVideo" autoplay playsinline muted class="absolute w-full h-full rounded-2xl bg-gray-900" />
 	</div>
 </template>
-
-<style>
-.page {
-	font-family: system-ui, sans-serif;
-	margin: 1rem;
-}
-.row {
-	display: flex;
-	gap: 1rem;
-	flex-wrap: wrap;
-	margin-top: 1rem;
-}
-video {
-	width: 320px;
-	max-width: 100%;
-	background: #222;
-	border-radius: 6px;
-}
-</style>

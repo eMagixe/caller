@@ -13,7 +13,11 @@ const getItemsAll = (state: 'collapsed' | 'expanded' = 'expanded') => {
 		{
 			label: 'Список',
 			icon: 'i-lucide-user',
-			to: '/dashboard'
+			to: '/dashboard',
+			onSelect: () => {
+				open.value = false
+				navigateTo('/dashboard')
+			}
 		}
 	] as NavigationMenuItem[]
 }
@@ -24,6 +28,7 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			label: 'Профиль',
 			icon: 'i-lucide-user',
 			onSelect: () => {
+				open.value = false
 				navigateTo('/dashboard/profile')
 			}
 		},
@@ -31,6 +36,7 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			label: 'Добавить',
 			icon: 'i-lucide-plus',
 			onSelect: () => {
+				open.value = false
 				navigateTo('/dashboard/users/create')
 			}
 		},
@@ -51,7 +57,6 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			<USidebar
 				v-model:open="open"
 				collapsible="icon"
-				close
 				:ui="{
 					container: 'h-full border-gray-300 text-primary',
 					header: 'border-b-gray-300 ',

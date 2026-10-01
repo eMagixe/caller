@@ -19,8 +19,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-	email: 'emax.mails@gmail.com',
-	password: 'UIOGF82uio!'
+	email: '',
+	password: ''
 })
 
 const toast = useToast()

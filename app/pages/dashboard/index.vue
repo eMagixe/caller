@@ -7,6 +7,7 @@ const selectedUser = ref<User | null>(null)
 
 function selectUser(item: User) {
 	selectedUser.value = item
+	toCall('video')
 }
 
 const isCurrentItem = computed(() => (item: User) => item.id === selectedUser.value?.id)
@@ -27,8 +28,8 @@ async function createRoom(id: string) {
 </script>
 
 <template>
-	<div class="flex flex-row h-[calc(100vh-96px)] gap-5">
-		<UScrollArea class="w-1/4 h-full">
+	<main class="flex flex-row h-[calc(100vh-96px)] gap-5">
+		<UScrollArea class="w-1/4 not-sm:w-full h-full">
 			<UCard
 				@click="selectUser(item as User)"
 				class="m-0.5 w-full cursor-pointer"
@@ -41,31 +42,5 @@ async function createRoom(id: string) {
 				</div>
 			</UCard>
 		</UScrollArea>
-		<main class="w-3/4">
-			<VisualWrapper>
-				<div class="w-full flex flex-row justify-between items-center gap-5">
-					<div>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</div>
-
-					<div class="flex flex-row gap-5">
-						<UButton
-							icon="i-lucide-video"
-							size="lg"
-							:ui="{
-								leadingIcon: 'text-primary'
-							}"
-							@click="toCall('video')"
-						/>
-						<UButton
-							icon="i-lucide-headphones"
-							size="lg"
-							:ui="{
-								leadingIcon: 'text-primary'
-							}"
-							@click="toCall('audio')"
-						/>
-					</div>
-				</div>
-			</VisualWrapper>
-		</main>
-	</div>
+	</main>
 </template>
