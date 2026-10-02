@@ -16,7 +16,6 @@ const getItemsAll = (state: 'collapsed' | 'expanded' = 'expanded') => {
 			to: '/dashboard',
 			onSelect: () => {
 				open.value = false
-				navigateTo('/dashboard')
 			}
 		}
 	] as NavigationMenuItem[]
@@ -76,7 +75,7 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 						:items="getItemsAll(state)"
 						orientation="vertical"
 						:ui="{
-							link: 'p-3 overflow-hidden'
+							link: 'p-1.25 overflow-hidden'
 						}"
 					/>
 				</template>
