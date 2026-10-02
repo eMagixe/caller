@@ -51,7 +51,7 @@ const sendPushNotification = async () => {
 
 	try {
 		// Делаем POST-запрос к файлу server/api/send-push.ts
-		const response = await $fetch('/api/send-push', {
+		const response = await $fetch('/api/push', {
 			method: 'POST',
 			body: {
 				subscription: userSubscription.value, // Передаем объект подписки телефона
