@@ -15,7 +15,11 @@ let stream: MediaStream
 const audioStatus = ref(true)
 const videoStatus = ref(true)
 
-const webSocket = useWebSocket(`wss://${location.host}/api/rooms/create?room=${room}`, {
+const protocol = new URL(location.href).protocol
+const webSocketProtocol = protocol === 'https:' ? 'wss' : 'ws'
+let webSocketUrl = `${webSocketProtocol}://${location.host}/api/rooms/create?room=${room}`
+
+const webSocket = useWebSocket(webSocketUrl, {
 	onMessage: (webSocket, event) => handle(JSON.parse(event.data))
 })
 
@@ -84,8 +88,10 @@ async function toggleVideo() {
 }
 
 async function leave() {
-	stream.getVideoTracks().forEach((track) => track.stop())
-	stream.getAudioTracks().forEach((track) => track.stop())
+	if (stream) {
+		stream.getVideoTracks().forEach((track) => track.stop())
+		stream.getAudioTracks().forEach((track) => track.stop())
+	}
 	webRTC.close()
 	webSocket.close()
 	navigateTo('/dashboard')
