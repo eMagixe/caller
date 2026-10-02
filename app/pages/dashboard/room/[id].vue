@@ -60,7 +60,7 @@ async function handle(data: any) {
 }
 
 async function initLocalDevices() {
-	const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+	const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 	localVideo.value!.srcObject = stream
 	stream.getTracks().forEach((t) => webRTC.addTrack(t, stream))
 }
