@@ -32,7 +32,6 @@ async function createRoom(id: string) {
 <template>
 	<main class="flex flex-row h-[calc(100vh-96px)] gap-5">
 		<UScrollArea class="w-1/4 not-sm:w-full h-full">
-			<DashboardPush />
 			<UCard
 				@click="selectUser(item as User)"
 				class="m-0.5 w-full cursor-pointer"

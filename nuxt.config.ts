@@ -2,7 +2,7 @@ import type { NuxtPage } from 'nuxt/schema'
 
 export default defineNuxtConfig({
 	compatibilityDate: '2026-09-01',
-	modules: ['@nuxt/ui', '@vite-pwa/nuxt'],
+	modules: ['@nuxt/ui'],
 	ui: { fonts: false },
 	css: ['~/assets/css/main.css'],
 	devtools: { enabled: false },
@@ -24,20 +24,6 @@ export default defineNuxtConfig({
 		turnSecret: '',
 		stunUrls: '',
 		authServer: ''
-	},
-	pwa: {
-		strategies: 'injectManifest',
-		srcDir: 'service',
-		filename: 'sw.ts',
-		manifest: {
-			name: 'Caller - Звони с друзьями',
-			short_name: 'Caller',
-			theme_color: '#ffffff',
-			icons: [
-				{ src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-				{ src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' }
-			]
-		}
 	},
 	app: {
 		head: {
