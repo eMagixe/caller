@@ -4,7 +4,7 @@ COPY package.json ./
 COPY . .
 RUN npm install -g bun
 RUN bun install
-RUN bun build
+RUN bun run build
 EXPOSE 3000
 
-CMD ["bun", "start"]
+CMD ["bun", "run start"]

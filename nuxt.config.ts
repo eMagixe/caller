@@ -27,7 +27,7 @@ export default defineNuxtConfig({
 	},
 	pwa: {
 		strategies: 'injectManifest',
-		srcDir: 'service-worker',
+		srcDir: 'service',
 		filename: 'sw.ts',
 		manifest: {
 			name: 'Caller - Звони с друзьями',
