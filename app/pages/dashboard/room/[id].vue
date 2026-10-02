@@ -99,7 +99,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="w-full h-full relative">
+	<div class="w-full h-full max-h-[calc(100vh-96px)] relative">
 		<video
 			ref="remoteVideo"
 			autoplay
@@ -108,7 +108,7 @@ onMounted(async () => {
 		/>
 
 		<div
-			class="absolute right-[50%] bg-white p-3 flex flex-row gap-3 rounded-xl z-50 bottom-5 not-sm:right-2.5 not-sm:bottom-2.5"
+			class="absolute flex flex-row gap-3 opacity-10 hover:opacity-100 right-[calc(25%)] w-1/2 justify-center items-center bg-white p-3 rounded-xl z-50 top-5 not-sm:top-2.5"
 		>
 			<UButton
 				icon="i-lucide-video-off"

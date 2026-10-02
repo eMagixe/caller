@@ -57,11 +57,13 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 			<USidebar
 				v-model:open="open"
 				collapsible="icon"
+				variant="sidebar"
+				mode="modal"
 				:ui="{
 					container: 'h-full border-gray-300 text-primary',
 					header: 'border-b-gray-300 ',
 					inner: 'divide-transparent',
-					body: 'py-0 border-b-gray-300'
+					body: 'py-5 border-b-gray-300'
 				}"
 			>
 				<template #header>
@@ -73,9 +75,8 @@ const userItems = computed<DropdownMenuItem[][]>(() => [
 						:key="useId()"
 						:items="getItemsAll(state)"
 						orientation="vertical"
-						class="mt-5"
 						:ui="{
-							link: 'p-1.5 overflow-hidden'
+							link: 'p-3 overflow-hidden'
 						}"
 					/>
 				</template>
