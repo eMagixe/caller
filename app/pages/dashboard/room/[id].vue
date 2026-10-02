@@ -84,6 +84,8 @@ async function toggleVideo() {
 }
 
 async function leave() {
+	stream.getVideoTracks().forEach((track) => track.stop())
+	stream.getAudioTracks().forEach((track) => track.stop())
 	webRTC.close()
 	webSocket.close()
 	navigateTo('/dashboard')
