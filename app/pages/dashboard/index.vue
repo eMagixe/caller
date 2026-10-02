@@ -2,7 +2,9 @@
 import type { CallMode } from '#shared/types/room.ts'
 
 const user = useUser()
-const users = await user.getAll()
+const profile = useProfile()
+const me = await profile.getUser()
+const users = (await user.getAll()).filter((item: User) => item.id !== me.value?.id)
 const selectedUser = ref<User | null>(null)
 
 function selectUser(item: User) {

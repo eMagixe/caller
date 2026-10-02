@@ -55,7 +55,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 		</UFormField>
 
 		<UFormField label="Пароль" name="password">
-			<UInput v-model="state.password" type="password" class="w-full" />
+			<UInput v-model="state.password" type="text" class="w-full" />
 		</UFormField>
 
 		<UButton class="flex justify-center w-full" type="submit"> Войти </UButton>

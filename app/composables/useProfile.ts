@@ -28,11 +28,12 @@ export const useProfile = () => {
 						}
 						return null
 					})
-					.catch(() => {
-						return null
+					.catch((error) => {
+						console.log(error)
+						navigateTo('/')
 					})
 			}
-		} else return null
+		} else navigateTo('/')
 	}
 
 	async function confirmProfile(payload: ConfirmProfilePayload) {

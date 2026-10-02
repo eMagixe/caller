@@ -1,3 +1,5 @@
+import type { NuxtPage } from 'nuxt/schema'
+
 export default defineNuxtConfig({
 	compatibilityDate: '2026-09-01',
 	modules: ['@nuxt/ui'],
@@ -34,6 +36,23 @@ export default defineNuxtConfig({
 				}
 			],
 			link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }]
+		}
+	},
+	hooks: {
+		'pages:extend'(pages) {
+			const setMiddleware = (pages: NuxtPage[]) => {
+				for (const page of pages) {
+					if (page.path.startsWith('/dashboard')) {
+						page.meta ||= {}
+						page.meta.middleware = ['auth']
+					}
+					if (page.children) {
+						setMiddleware(page.children)
+					}
+				}
+			}
+
+			setMiddleware(pages)
 		}
 	}
 })

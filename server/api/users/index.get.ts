@@ -1,7 +1,7 @@
 import { User } from '#shared/types'
 import { UserService } from '#server/services'
 
-export default defineEventHandler(async (event): Promise<User | void> => {
+export default defineEventHandler(async (event): Promise<User[] | void> => {
 	try {
 		const userService = new UserService()
 		return await userService
@@ -10,9 +10,11 @@ export default defineEventHandler(async (event): Promise<User | void> => {
 				return users
 			})
 			.catch((error) => {
-				return error
+				console.error(error)
+				return []
 			})
 	} catch (error) {
-		console.log(error)
+		console.error(error)
+		return []
 	}
 })
