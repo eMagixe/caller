@@ -20,7 +20,7 @@ function toCall(mode: CallMode) {
 	if (!selectedUser.value) {
 		toast.add({ title: 'Вызов', color: 'error', description: 'Пользователь не выбран' })
 	} else {
-		//createRoom(selectedUser.value.id)
+		createRoom(selectedUser.value.id)
 	}
 }
 
