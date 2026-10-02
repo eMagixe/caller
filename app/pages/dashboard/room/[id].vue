@@ -108,7 +108,7 @@ onMounted(async () => {
 		/>
 
 		<div
-			class="absolute flex flex-row gap-3 opacity-10 hover:opacity-100 right-[calc(25%)] w-1/2 justify-center items-center bg-white p-3 rounded-xl z-50 top-5 not-sm:top-2.5"
+			class="absolute flex flex-row gap-3 right-[calc(25%)] w-1/2 justify-center items-center bg-white p-3 rounded-xl z-50 top-5 not-sm:top-2.5"
 		>
 			<UButton
 				icon="i-lucide-video-off"
