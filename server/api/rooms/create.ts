@@ -5,8 +5,6 @@ function getRoomName(peer: any) {
 	return 'room-' + url.searchParams.get('room')
 }
 
-const roomTest = 'room-1'
-
 export default defineWebSocketHandler({
 	open(peer) {
 		console.log('connected: peer: ', peer.id)
@@ -15,14 +13,14 @@ export default defineWebSocketHandler({
 		if (roomName) {
 			if (rooms.has(roomName)) {
 				const peers = rooms.get(roomName)
-				peer.subscribe(roomTest)
+				peer.subscribe(roomName)
 				peers.add(peer)
 
 				console.log(peer.id + ' joined room ' + roomName)
 			} else {
 				const peers = new Set()
 				console.log('created room ' + roomName)
-				peer.subscribe(roomTest)
+				peer.subscribe(roomName)
 
 				peers.add(peer)
 				rooms.set(roomName, peers)
@@ -55,7 +53,7 @@ export default defineWebSocketHandler({
 		if (roomName) {
 			console.log('peer: ' + peer.id)
 			console.log('message: ' + message.id)
-			peer.publish(roomTest, message.text())
+			peer.publish(roomName, message.text())
 		}
 	}
 })
