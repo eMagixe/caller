@@ -20,9 +20,9 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		appOrigin: '',
 		trustProxy: false,
-		turnUrls: '',
-		turnSecret: '',
-		stunUrls: '',
+		turnUrls: 'turn:turn.magixe-dev.ru:3478',
+		turnUsername: 'magixe',
+		turnSecret: 'uiogf82',
 		authServer: ''
 	},
 	app: {

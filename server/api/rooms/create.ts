@@ -2,25 +2,33 @@ const rooms = new Map()
 
 function getRoomName(peer: any) {
 	const url = new URL(peer.request.url)
-	return url.searchParams.get('room')
+	return 'room-' + url.searchParams.get('room')
 }
+
+const roomTest = 'room-1'
 
 export default defineWebSocketHandler({
 	open(peer) {
+		console.log('connected: peer: ', peer.id)
+
 		const roomName = getRoomName(peer)
 		if (roomName) {
 			if (rooms.has(roomName)) {
-				const room = rooms.get(roomName)
-				peer.subscribe(roomName)
-				room.add(peer)
+				const peers = rooms.get(roomName)
+				peer.subscribe(roomTest)
+				peers.add(peer)
+
+				console.log(peer.id + ' joined room ' + roomName)
 			} else {
 				const peers = new Set()
-				peer.subscribe(roomName)
+				console.log('created room ' + roomName)
+				peer.subscribe(roomTest)
+
 				peers.add(peer)
 				rooms.set(roomName, peers)
-			}
 
-			console.log('connected: peer: ', peer.id)
+				console.log(peer.id + ' joined room ' + roomName)
+			}
 		}
 	},
 
@@ -28,9 +36,9 @@ export default defineWebSocketHandler({
 		const roomName = getRoomName(peer)
 
 		if (roomName) {
-			const room = rooms.get(roomName)
-			room.delete(peer)
-			if (room.size === 0) {
+			const peers = rooms.get(roomName)
+			peers.delete(peer)
+			if (peers.size === 0) {
 				rooms.delete(roomName)
 			}
 		}
@@ -45,7 +53,9 @@ export default defineWebSocketHandler({
 	message(peer, message) {
 		const roomName = getRoomName(peer)
 		if (roomName) {
-			peer.publish(roomName, message.text())
+			console.log('peer: ' + peer.id)
+			console.log('message: ' + message.id)
+			peer.publish(roomTest, message.text())
 		}
 	}
 })
