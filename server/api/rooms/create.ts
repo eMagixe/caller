@@ -51,8 +51,6 @@ export default defineWebSocketHandler({
 	message(peer, message) {
 		const roomName = getRoomName(peer)
 		if (roomName) {
-			console.log('peer: ' + peer.id)
-			console.log('message: ' + message.id)
 			peer.publish(roomName, message.text())
 		}
 	}
